@@ -12,7 +12,9 @@ param(
     [ValidateSet("trae", "claude", "all")]
     [string]$Platform = "all",
 
-    [string]$SourceDir = $PSScriptRoot
+    [string]$SourceDir = $PSScriptRoot,
+
+    [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
@@ -63,13 +65,18 @@ function Install-Skill {
     
     # Create target directory
     if (Test-Path $targetDir) {
-        $confirm = Read-Host "  Already exists. Overwrite? (Y/n)"
-        if ($confirm -eq "" -or $confirm -eq "Y" -or $confirm -eq "y") {
+        if ($Force) {
             Remove-Item -Recurse -Force $targetDir
         }
         else {
-            Write-Host "  Skipped" -ForegroundColor Red
-            return
+            $confirm = Read-Host "  Already exists. Overwrite? (Y/n)"
+            if ($confirm -eq "" -or $confirm -eq "Y" -or $confirm -eq "y") {
+                Remove-Item -Recurse -Force $targetDir
+            }
+            else {
+                Write-Host "  Skipped" -ForegroundColor Red
+                return
+            }
         }
     }
     
